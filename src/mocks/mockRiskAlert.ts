@@ -1,5 +1,7 @@
 import { RiskAlert } from '../types/risk';
 
+const fallbackHlsUrl = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+
 export const mockRiskAlert: RiskAlert = {
   event_id: 'evt-20260427-001',
   camera_id: 'room-01',
@@ -16,6 +18,6 @@ export const mockRiskAlert: RiskAlert = {
     post_fall: 0.03,
   },
   guardian_message: '아이가 의자에 올라가려는 행동이 감지되었습니다.',
-  hls_url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+  hls_url: process.env.EXPO_PUBLIC_MOCK_HLS_URL ?? fallbackHlsUrl,
   thumbnail_url: 'https://example.com/thumbnails/evt-20260427-001.jpg',
 };
