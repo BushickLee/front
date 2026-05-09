@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "fall-guard-app",
-    "slug": "fall-guard-app",
+    "name": "Toddle Guard",
+    "slug": "toddle-guard",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",

@@ -1,28 +1,16 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, ScrollView } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import VideoPlayer from '../components/VideoPlayer';
 import AlarmModal from '../components/AlarmModal';
+import { mockRiskAlert } from '../mocks/mockRiskAlert';
+import { scheduleLocalRiskAlert } from '../services/notificationService';
 
 
 export default function HomeScreen() {
   const [isAlarmVisible, setIsAlarmVisible] = useState(false);
 
-  const mockDangerData = {
-    event_id: "evt-20260427-001",
-    risk_type: "chair_climb_risk",
-    guardian_message: "아이가 의자에 올라가려는 행동이 감지되었습니다.",
-    timestamp: "2026-04-28T23:11:35+09:00"
-  };
-
   const handleSystemPushAlarm = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "긴급 낙상 위험 감지",
-        body: mockDangerData.guardian_message,
-      },
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 3 },
-    });
+    await scheduleLocalRiskAlert(mockRiskAlert, 3);
   };
 
   return (
@@ -32,7 +20,7 @@ export default function HomeScreen() {
       </View>
 
       {/* 조립된 비디오 부품 */}
-      <VideoPlayer />
+      <VideoPlayer hlsUrl={mockRiskAlert.hls_url} />
 
       <View style={styles.controlBox}>
         <Text style={styles.subtitle}>알림 시뮬레이션 제어판</Text>
@@ -48,7 +36,7 @@ export default function HomeScreen() {
       <AlarmModal 
         visible={isAlarmVisible} 
         onClose={() => setIsAlarmVisible(false)} 
-        dangerData={mockDangerData} 
+        dangerData={mockRiskAlert} 
       />
     </ScrollView>
   );

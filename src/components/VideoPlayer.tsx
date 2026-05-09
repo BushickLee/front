@@ -4,9 +4,15 @@ import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import Slider from '@react-native-community/slider';
 import { MaterialIcons } from '@expo/vector-icons';
 
-export default function VideoPlayer() {
+const FALLBACK_HLS_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+
+interface VideoPlayerProps {
+  hlsUrl?: string;
+}
+
+export default function VideoPlayer({ hlsUrl = FALLBACK_HLS_URL }: VideoPlayerProps) {
   const videoRef = useRef<Video>(null);
-  const [status, setStatus] = useState<any>({});
+  const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   const [isLive, setIsLive] = useState(true);
 
   // 비디오 상태가 변할 때마다 실행되는 함수 (초당 2~3회 실행)
@@ -35,7 +41,7 @@ export default function VideoPlayer() {
 
   // 라이브 버튼을 눌렀을 때 (가장 최신 시간으로 점프!)
   const jumpToLive = () => {
-    if (videoRef.current && status.durationMillis) {
+    if (videoRef.current && status?.isLoaded && status.durationMillis) {
       videoRef.current.setPositionAsync(status.durationMillis);
     }
   };
@@ -53,7 +59,7 @@ export default function VideoPlayer() {
       <Video
         ref={videoRef}
         style={styles.video}
-        source={{ uri: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' }}
+        source={{ uri: hlsUrl }}
         useNativeControls={false} // 기본 컨트롤러 끄기! (우리가 직접 만듦)
         resizeMode={ResizeMode.CONTAIN}
         isMuted={true}
@@ -73,8 +79,8 @@ export default function VideoPlayer() {
         <Slider
           style={styles.slider}
           minimumValue={0}
-          maximumValue={status.durationMillis || 100}
-          value={status.positionMillis || 0}
+          maximumValue={status?.isLoaded ? status.durationMillis || 100 : 100}
+          value={status?.isLoaded ? status.positionMillis || 0 : 0}
           onSlidingComplete={handleSliderValueChange}
           minimumTrackTintColor="red"
           maximumTrackTintColor="#FFFFFF"
