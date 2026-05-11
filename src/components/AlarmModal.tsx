@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native';
 import { riskLevelMeta } from '../constants/riskLevels';
+import { colors, radii, spacing } from '../constants/theme';
 import { RiskAlert } from '../types/risk';
 
 interface AlarmModalProps {
@@ -16,16 +17,17 @@ export default function AlarmModal({ visible, onClose, dangerData }: AlarmModalP
     <Modal visible={visible} animationType="slide" transparent={true}>
       <View style={styles.modalBackground}>
         <View style={styles.alarmBox}>
-          <Text style={[styles.alarmTitle, { color: riskLevel.color }]}>
-            {riskLevel.title}
-          </Text>
+          <View style={[styles.iconCircle, { backgroundColor: `${riskLevel.color}14` }]}>
+            <Text style={[styles.iconText, { color: riskLevel.color }]}>!</Text>
+          </View>
+          <Text style={[styles.alarmTitle, { color: riskLevel.color }]}>{riskLevel.title}</Text>
           <Text style={styles.alarmMessage}>{dangerData.guardian_message}</Text>
           <Text style={styles.alarmDescription}>{riskLevel.description}</Text>
           <Text style={styles.confidence}>신뢰도: {Math.round(dangerData.confidence * 100)}%</Text>
           <Text style={styles.alarmTime}>발생 시간: {dangerData.timestamp}</Text>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>확인 및 알람 끄기</Text>
+            <Text style={styles.closeButtonText}>확인했어요</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -34,13 +36,76 @@ export default function AlarmModal({ visible, onClose, dangerData }: AlarmModalP
 }
 
 const styles = StyleSheet.create({
-  modalBackground: { flex: 1, backgroundColor: 'rgba(255, 0, 0, 0.7)', justifyContent: 'center', alignItems: 'center' },
-  alarmBox: { width: '80%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', elevation: 5 },
-  alarmTitle: { fontSize: 22, fontWeight: 'bold', color: 'red', marginBottom: 15 },
-  alarmMessage: { fontSize: 18, textAlign: 'center', marginBottom: 10, fontWeight: '600' },
-  alarmDescription: { fontSize: 14, textAlign: 'center', color: '#555', marginBottom: 10 },
-  confidence: { fontSize: 14, color: '#333', marginBottom: 8 },
-  alarmTime: { fontSize: 14, color: 'gray', marginBottom: 25 },
-  closeButton: { backgroundColor: 'black', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 8 },
-  closeButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
+  modalBackground: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.62)',
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  alarmBox: {
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    elevation: 5,
+    padding: spacing.xl,
+    width: '100%',
+  },
+  iconCircle: {
+    alignItems: 'center',
+    borderRadius: 22,
+    height: 44,
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+    width: 44,
+  },
+  iconText: {
+    fontSize: 24,
+    fontWeight: '900',
+  },
+  alarmTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: spacing.md,
+  },
+  alarmMessage: {
+    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+    lineHeight: 25,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  alarmDescription: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
+  confidence: {
+    color: colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: spacing.sm,
+  },
+  alarmTime: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginBottom: spacing.xl,
+  },
+  closeButton: {
+    alignItems: 'center',
+    backgroundColor: colors.black,
+    borderRadius: radii.md,
+    minHeight: 48,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+    width: '100%',
+  },
+  closeButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: '800',
+  },
 });
