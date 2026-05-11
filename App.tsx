@@ -1,5 +1,5 @@
-import React from 'react';
 import 'react-native-gesture-handler';
+import React from 'react';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
