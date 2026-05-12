@@ -2,18 +2,18 @@ export type RiskPhase = 'normal' | 'early_warning' | 'imminent_fall' | 'post_fal
 
 export type AlertLevel = 'normal' | 'warning' | 'critical' | 'emergency';
 
-export type RiskProbabilities = Record<RiskPhase, number>;
+export type RiskObjectType = 'chair' | 'sofa' | 'table' | 'bed';
 
 export interface RiskAlert {
   event_id: string;
-  camera_id: string;
   frame_id: number;
   timestamp: string;
   phase: RiskPhase;
   phase_ko: string;
   alert_level: AlertLevel;
   confidence: number;
-  probabilities: RiskProbabilities;
+  object_type: RiskObjectType;
+  object_type_ko: string;
   guardian_message: string;
   hls_url: string;
   thumbnail_url?: string;

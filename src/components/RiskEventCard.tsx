@@ -31,8 +31,10 @@ export default function RiskEventCard({ alert, onPress }: RiskEventCardProps) {
       </View>
       <Text style={styles.message}>{alert.guardian_message}</Text>
       <View style={styles.metaRow}>
-        <MaterialIcons name="videocam" size={15} color={colors.textSecondary} />
-        <Text style={styles.metaText}>{alert.camera_id}</Text>
+        <MaterialIcons name="category" size={15} color={colors.textSecondary} />
+        <Text style={styles.metaText}>{alert.object_type_ko}</Text>
+        <View style={styles.separator} />
+        <Text style={styles.metaText}>Frame {alert.frame_id}</Text>
         <View style={styles.separator} />
         <Text style={styles.metaText}>신뢰도 {Math.round(alert.confidence * 100)}%</Text>
       </View>

@@ -10,7 +10,7 @@ export function fetchRiskAlert(eventId: string) {
 }
 
 export function registerPushToken(token: string) {
-  return apiClient<{ ok: boolean }>('/push-tokens', {
+  return apiClient<{ ok: boolean }>('/devices/push-token', {
     method: 'POST',
     body: JSON.stringify({ token }),
   });

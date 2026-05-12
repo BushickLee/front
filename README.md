@@ -115,9 +115,9 @@ Backend가 준비되면 다음 API skeleton을 실제 엔드포인트에 맞춰 
 
 - `src/api/client.ts`: 공통 REST client
 - `src/api/alerts.ts`: 위험 알림 목록/상세, push token 등록
-- `src/api/cameras.ts`: 카메라 목록/상세
+- `src/api/stream.ts`: 단일 카메라 스트림 정보와 HLS URL
 - `src/types/risk.ts`: 위험 알림 payload 타입
-- `src/types/camera.ts`: 카메라 타입
+- `src/types/stream.ts`: 홈 화면 스트림 정보 타입
 
 환경 변수는 Expo public env 형식으로 주입합니다.
 
@@ -165,6 +165,97 @@ HLS Server Repo
         |
         v
 Toddle Guard Frontend
+```
+
+## MVP API 계약
+
+현재 MVP는 단일 카메라와 단일 방을 기준으로 합니다. Frontend는 카메라 목록을 직접 관리하지 않고, Backend가 제공하는 현재 스트림 정보와 위험 알림 이력을 사용합니다.
+
+### GET /stream
+
+홈 화면에서 실시간 HLS 영상을 재생하기 위한 정보입니다.
+
+```json
+{
+  "camera_name": "아이방 카메라",
+  "camera_location": "아이방",
+  "hls_url": "http://jetson-ip:8000/static/live/stream.m3u8",
+  "is_active": true,
+  "last_seen_at": "2026-05-12T14:32:15+09:00"
+}
+```
+
+### GET /alerts
+
+위험 이력 화면에서 사용하는 알림 목록입니다.
+
+```json
+[
+  {
+    "event_id": "evt-20260512-001",
+    "frame_id": 1234,
+    "timestamp": "2026-05-12T14:32:15+09:00",
+    "phase": "early_warning",
+    "phase_ko": "조기경보",
+    "alert_level": "warning",
+    "confidence": 0.67,
+    "object_type": "chair",
+    "object_type_ko": "의자",
+    "guardian_message": "아이가 의자의 가장자리에서 조기경보가 일어났습니다.",
+    "hls_url": "http://jetson-ip:8000/static/live/stream.m3u8",
+    "thumbnail_url": "http://backend-ip/thumbnails/evt-20260512-001.jpg"
+  }
+]
+```
+
+### GET /alerts/{event_id}
+
+위험 알림 상세 화면에서 사용하는 단일 알림 정보입니다. 응답 구조는 `GET /alerts`의 항목 하나와 동일합니다.
+
+### POST /devices/push-token
+
+앱의 push token을 Backend에 등록합니다.
+
+```json
+{
+  "token": "expo-push-token"
+}
+```
+
+### Push payload
+
+푸시 알림에는 앱이 상세 화면으로 이동할 수 있도록 `event_id`가 반드시 포함되어야 합니다.
+
+```json
+{
+  "title": "조기경보",
+  "body": "아이가 의자의 가장자리에서 조기경보가 일어났습니다.",
+  "data": {
+    "event_id": "evt-20260512-001",
+    "phase": "early_warning",
+    "object_type": "chair"
+  }
+}
+```
+
+### Enum
+
+위험 단계:
+
+```text
+normal
+early_warning
+imminent_fall
+post_fall
+```
+
+감지 물체:
+
+```text
+chair
+sofa
+table
+bed
 ```
 
 ## 위험 단계

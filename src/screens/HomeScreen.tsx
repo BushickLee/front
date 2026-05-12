@@ -12,6 +12,7 @@ import { colors, radii, spacing } from '../constants/theme';
 import { riskLevelMeta } from '../constants/riskLevels';
 import { mockRiskAlert } from '../mocks/mockRiskAlert';
 import { mockRiskHistory } from '../mocks/mockRiskHistory';
+import { mockStreamInfo } from '../mocks/mockStreamInfo';
 import { scheduleLocalRiskAlert } from '../services/notificationService';
 import { RootStackParamList } from '../types/navigation';
 
@@ -41,7 +42,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.eyebrow}>Toddle Guard</Text>
-          <Text style={styles.title}>아이방 실시간 모니터링</Text>
+          <Text style={styles.title}>{mockStreamInfo.camera_location} 실시간 모니터링</Text>
         </View>
         <View style={styles.headerIcon}>
           <MaterialIcons name="shield" size={22} color={colors.primary} />
@@ -49,7 +50,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.videoCard}>
-        <VideoPlayer hlsUrl={mockRiskAlert.hls_url} />
+        <VideoPlayer hlsUrl={mockStreamInfo.hls_url} />
       </View>
 
       <View style={styles.statusCard}>

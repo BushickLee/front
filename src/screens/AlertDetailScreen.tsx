@@ -6,6 +6,7 @@ import RiskBadge from '../components/RiskBadge';
 import VideoPlayer from '../components/VideoPlayer';
 import { colors, radii, spacing } from '../constants/theme';
 import { mockRiskHistory } from '../mocks/mockRiskHistory';
+import { mockStreamInfo } from '../mocks/mockStreamInfo';
 import { RootStackParamList } from '../types/navigation';
 
 type AlertDetailRoute = RouteProp<RootStackParamList, 'AlertDetail'>;
@@ -38,8 +39,18 @@ export default function AlertDetailScreen() {
             <Text style={styles.metaValue}>{alert.timestamp}</Text>
           </View>
           <View style={styles.metaItem}>
-            <Text style={styles.metaLabel}>카메라</Text>
-            <Text style={styles.metaValue}>{alert.camera_id}</Text>
+            <Text style={styles.metaLabel}>위치</Text>
+            <Text style={styles.metaValue}>{mockStreamInfo.camera_location}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaLabel}>감지 물체</Text>
+            <Text style={styles.metaValue}>
+              {alert.object_type_ko} ({alert.object_type})
+            </Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaLabel}>프레임 ID</Text>
+            <Text style={styles.metaValue}>{alert.frame_id}</Text>
           </View>
           <View style={styles.metaItem}>
             <Text style={styles.metaLabel}>이벤트 ID</Text>
@@ -53,16 +64,11 @@ export default function AlertDetailScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.sectionTitle}>위험 확률</Text>
-        {Object.entries(alert.probabilities).map(([phase, value]) => (
-          <View key={phase} style={styles.probabilityRow}>
-            <Text style={styles.probabilityLabel}>{phase}</Text>
-            <View style={styles.probabilityTrack}>
-              <View style={[styles.probabilityFill, { width: `${Math.round(value * 100)}%` }]} />
-            </View>
-            <Text style={styles.probabilityValue}>{formatPercent(value)}</Text>
-          </View>
-        ))}
+        <Text style={styles.sectionTitle}>영상 기준 정보</Text>
+        <Text style={styles.infoText}>
+          이 이벤트는 frame_id {alert.frame_id} 기준으로 저장되었습니다. Backend가 과거 영상
+          조회를 제공하면 이 값을 기준으로 전후 영상을 요청할 수 있습니다.
+        </Text>
       </View>
     </ScrollView>
   );
@@ -120,35 +126,11 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 17,
     fontWeight: '800',
-    marginBottom: spacing.lg,
-  },
-  probabilityRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
     marginBottom: spacing.md,
   },
-  probabilityLabel: {
+  infoText: {
     color: colors.textSecondary,
-    fontSize: 12,
-    width: 92,
-  },
-  probabilityTrack: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 4,
-    flex: 1,
-    height: 8,
-    overflow: 'hidden',
-  },
-  probabilityFill: {
-    backgroundColor: colors.primary,
-    height: '100%',
-  },
-  probabilityValue: {
-    color: colors.textPrimary,
-    fontSize: 12,
-    fontWeight: '700',
-    marginLeft: spacing.sm,
-    textAlign: 'right',
-    width: 42,
+    fontSize: 14,
+    lineHeight: 21,
   },
 });

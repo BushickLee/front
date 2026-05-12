@@ -12,13 +12,9 @@ export const mockRiskHistory: RiskAlert[] = [
     phase_ko: '낙상 임박',
     alert_level: 'critical',
     confidence: 0.86,
-    probabilities: {
-      normal: 0.04,
-      early_warning: 0.08,
-      imminent_fall: 0.86,
-      post_fall: 0.02,
-    },
-    guardian_message: '아이가 의자 가장자리에서 균형을 잃을 가능성이 높습니다.',
+    object_type: 'chair',
+    object_type_ko: '의자',
+    guardian_message: '아이가 의자의 가장자리에서 낙상 임박이 일어났습니다.',
   },
   {
     ...mockRiskAlert,
@@ -29,12 +25,8 @@ export const mockRiskHistory: RiskAlert[] = [
     phase_ko: '정상',
     alert_level: 'normal',
     confidence: 0.91,
-    probabilities: {
-      normal: 0.91,
-      early_warning: 0.06,
-      imminent_fall: 0.02,
-      post_fall: 0.01,
-    },
-    guardian_message: '아이방에서 안정적인 활동이 감지되었습니다.',
+    object_type: 'sofa',
+    object_type_ko: '소파',
+    guardian_message: '아이가 소파 주변에서 정상 상태로 감지되었습니다.',
   },
 ];

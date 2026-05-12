@@ -20,8 +20,8 @@ export async function scheduleLocalRiskAlert(alert: RiskAlert, seconds = 3) {
       body: alert.guardian_message,
       data: {
         eventId: alert.event_id,
-        cameraId: alert.camera_id,
         phase: alert.phase,
+        objectType: alert.object_type,
       },
     },
     trigger: {
