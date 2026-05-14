@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radii, spacing } from '../constants/theme';
+import { useRiskAlerts } from '../hooks/useRiskAlerts';
+import { useStreamInfo } from '../hooks/useStreamInfo';
 
 const hlsUrl =
   process.env.EXPO_PUBLIC_MOCK_HLS_URL ?? 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
@@ -10,6 +12,8 @@ const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? '설정되지 않음'
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const streamState = useStreamInfo();
+  const alertsState = useRiskAlerts();
 
   return (
     <ScrollView
@@ -43,13 +47,25 @@ export default function SettingsScreen() {
 
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>연결 정보</Text>
+        <View style={styles.statusRow}>
+          <View style={[styles.statusDot, { backgroundColor: streamState.data ? '#16A34A' : colors.danger }]} />
+          <Text style={styles.statusText}>
+            {streamState.isMock ? 'Mock 데이터 모드' : 'Backend 연결 모드'}
+          </Text>
+        </View>
         <View style={styles.infoBlock}>
           <Text style={styles.infoLabel}>HLS URL</Text>
-          <Text style={styles.infoValue}>{hlsUrl}</Text>
+          <Text style={styles.infoValue}>{streamState.data?.hls_url ?? hlsUrl}</Text>
         </View>
         <View style={styles.infoBlock}>
           <Text style={styles.infoLabel}>API BASE URL</Text>
           <Text style={styles.infoValue}>{apiBaseUrl}</Text>
+        </View>
+        <View style={styles.infoBlock}>
+          <Text style={styles.infoLabel}>알림 이력 상태</Text>
+          <Text style={styles.infoValue}>
+            {alertsState.error ?? `${alertsState.data?.length ?? 0}개 이벤트 준비됨`}
+          </Text>
         </View>
       </View>
 
@@ -131,6 +147,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     marginBottom: spacing.md,
+  },
+  statusRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: spacing.md,
+  },
+  statusDot: {
+    borderRadius: 5,
+    height: 10,
+    marginRight: spacing.sm,
+    width: 10,
+  },
+  statusText: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '800',
   },
   infoBlock: {
     borderTopColor: colors.border,

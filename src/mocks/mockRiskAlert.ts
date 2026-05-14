@@ -12,7 +12,7 @@ export const mockRiskAlert: RiskAlert = {
   confidence: 0.67,
   object_type: 'chair',
   object_type_ko: '의자',
-  guardian_message: '아이가 의자의 가장자리에서 조기경보가 일어났습니다.',
+  guardian_message: '아이가 의자의 가장자리에서 조기경보가 감지되었습니다.',
   hls_url: process.env.EXPO_PUBLIC_MOCK_HLS_URL ?? fallbackHlsUrl,
   thumbnail_url: 'https://example.com/thumbnails/evt-20260427-001.jpg',
 };

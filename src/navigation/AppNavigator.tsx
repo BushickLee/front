@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -10,9 +11,11 @@ import SettingsScreen from '../screens/SettingsScreen';
 import AlertDetailScreen from '../screens/AlertDetailScreen';
 import { colors } from '../constants/theme';
 import { MainTabParamList, RootStackParamList } from '../types/navigation';
+import { addRiskNotificationListeners } from '../services/notificationService';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 function MainTabs() {
   const insets = useSafeAreaInsets();
@@ -55,8 +58,18 @@ function MainTabs() {
 }
 
 export default function AppNavigator() {
+  React.useEffect(() => {
+    return addRiskNotificationListeners({
+      onNotificationResponse: (eventId) => {
+        if (eventId && navigationRef.isReady()) {
+          navigationRef.navigate('AlertDetail', { eventId });
+        }
+      },
+    });
+  }, []);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{
           cardStyle: { backgroundColor: colors.background },

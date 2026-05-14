@@ -14,7 +14,7 @@ export const mockRiskHistory: RiskAlert[] = [
     confidence: 0.86,
     object_type: 'chair',
     object_type_ko: '의자',
-    guardian_message: '아이가 의자의 가장자리에서 낙상 임박이 일어났습니다.',
+    guardian_message: '아이가 의자의 가장자리에서 낙상 임박이 감지되었습니다.',
   },
   {
     ...mockRiskAlert,
@@ -27,6 +27,6 @@ export const mockRiskHistory: RiskAlert[] = [
     confidence: 0.91,
     object_type: 'sofa',
     object_type_ko: '소파',
-    guardian_message: '아이가 소파 주변에서 정상 상태로 감지되었습니다.',
+    guardian_message: '아이가 소파 주변에서 정상 상태가 감지되었습니다.',
   },
 ];

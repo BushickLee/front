@@ -8,11 +8,11 @@ import VideoPlayer from '../components/VideoPlayer';
 import AlarmModal from '../components/AlarmModal';
 import RiskBadge from '../components/RiskBadge';
 import RiskEventCard from '../components/RiskEventCard';
+import StateView from '../components/StateView';
 import { colors, radii, spacing } from '../constants/theme';
 import { riskLevelMeta } from '../constants/riskLevels';
-import { mockRiskAlert } from '../mocks/mockRiskAlert';
-import { mockRiskHistory } from '../mocks/mockRiskHistory';
-import { mockStreamInfo } from '../mocks/mockStreamInfo';
+import { useRiskAlerts } from '../hooks/useRiskAlerts';
+import { useStreamInfo } from '../hooks/useStreamInfo';
 import { scheduleLocalRiskAlert } from '../services/notificationService';
 import { RootStackParamList } from '../types/navigation';
 
@@ -22,10 +22,15 @@ export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigation>();
   const insets = useSafeAreaInsets();
   const [isAlarmVisible, setIsAlarmVisible] = useState(false);
-  const riskMeta = riskLevelMeta[mockRiskAlert.phase];
+  const streamState = useStreamInfo();
+  const alertsState = useRiskAlerts();
+  const latestAlert = alertsState.data?.[0] ?? null;
+  const riskMeta = latestAlert ? riskLevelMeta[latestAlert.phase] : null;
 
   const handleSystemPushAlarm = async () => {
-    await scheduleLocalRiskAlert(mockRiskAlert, 3);
+    if (latestAlert) {
+      await scheduleLocalRiskAlert(latestAlert, 3);
+    }
   };
 
   return (
@@ -42,32 +47,55 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.eyebrow}>Toddle Guard</Text>
-          <Text style={styles.title}>{mockStreamInfo.camera_location} 실시간 모니터링</Text>
+          <Text style={styles.title}>
+            {streamState.data?.camera_location ?? '실내'} 실시간 모니터링
+          </Text>
         </View>
         <View style={styles.headerIcon}>
           <MaterialIcons name="shield" size={22} color={colors.primary} />
         </View>
       </View>
 
-      <View style={styles.videoCard}>
-        <VideoPlayer hlsUrl={mockStreamInfo.hls_url} />
-      </View>
-
-      <View style={styles.statusCard}>
-        <View style={styles.statusTop}>
-          <RiskBadge phase={mockRiskAlert.phase} />
-          <Text style={styles.confidence}>신뢰도 {Math.round(mockRiskAlert.confidence * 100)}%</Text>
+      {streamState.data ? (
+        <View style={styles.videoCard}>
+          <VideoPlayer hlsUrl={streamState.data.hls_url} />
         </View>
-        <Text style={styles.statusTitle}>{riskMeta.description}</Text>
-        <Text style={styles.statusMessage}>{mockRiskAlert.guardian_message}</Text>
-      </View>
+      ) : (
+        <StateView
+          title="스트림 정보를 불러올 수 없습니다"
+          description={streamState.error ?? 'Backend /stream API 연결 상태를 확인해 주세요.'}
+          icon="videocam-off"
+        />
+      )}
+
+      {latestAlert && riskMeta ? (
+        <View style={styles.statusCard}>
+          <View style={styles.statusTop}>
+            <RiskBadge phase={latestAlert.phase} />
+            <Text style={styles.confidence}>신뢰도 {Math.round(latestAlert.confidence * 100)}%</Text>
+          </View>
+          <Text style={styles.statusTitle}>{riskMeta.description}</Text>
+          <Text style={styles.statusMessage}>{latestAlert.guardian_message}</Text>
+          {alertsState.isMock ? <Text style={styles.mockLabel}>Mock 데이터 표시 중</Text> : null}
+        </View>
+      ) : (
+        <StateView title="아직 감지된 위험 알림이 없습니다" icon="check-circle-outline" />
+      )}
 
       <View style={styles.actionsRow}>
-        <Pressable style={[styles.actionButton, styles.primaryAction]} onPress={() => setIsAlarmVisible(true)}>
+        <Pressable
+          style={[styles.actionButton, styles.primaryAction, !latestAlert && styles.disabledAction]}
+          disabled={!latestAlert}
+          onPress={() => setIsAlarmVisible(true)}
+        >
           <MaterialIcons name="warning" size={18} color={colors.white} />
           <Text style={styles.primaryActionText}>인앱 알림</Text>
         </Pressable>
-        <Pressable style={styles.actionButton} onPress={handleSystemPushAlarm}>
+        <Pressable
+          style={[styles.actionButton, !latestAlert && styles.disabledAction]}
+          disabled={!latestAlert}
+          onPress={handleSystemPushAlarm}
+        >
           <MaterialIcons name="notifications" size={18} color={colors.textPrimary} />
           <Text style={styles.actionText}>푸시 테스트</Text>
         </Pressable>
@@ -78,19 +106,28 @@ export default function HomeScreen() {
         <Text style={styles.sectionHint}>최근 3건</Text>
       </View>
 
-      {mockRiskHistory.slice(0, 3).map((alert) => (
-        <RiskEventCard
-          key={alert.event_id}
-          alert={alert}
-          onPress={() => navigation.navigate('AlertDetail', { eventId: alert.event_id })}
+      {alertsState.data && alertsState.data.length > 0 ? (
+        alertsState.data.slice(0, 3).map((alert) => (
+          <RiskEventCard
+            key={alert.event_id}
+            alert={alert}
+            onPress={() => navigation.navigate('AlertDetail', { eventId: alert.event_id })}
+          />
+        ))
+      ) : (
+        <StateView
+          title="최근 이벤트가 없습니다"
+          description={alertsState.error ?? '위험이 감지되면 이 영역에 최근 알림이 표시됩니다.'}
         />
-      ))}
+      )}
 
-      <AlarmModal
-        visible={isAlarmVisible}
-        onClose={() => setIsAlarmVisible(false)}
-        dangerData={mockRiskAlert}
-      />
+      {latestAlert ? (
+        <AlarmModal
+          visible={isAlarmVisible}
+          onClose={() => setIsAlarmVisible(false)}
+          dangerData={latestAlert}
+        />
+      ) : null}
     </ScrollView>
   );
 }
@@ -165,6 +202,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 21,
   },
+  mockLabel: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: spacing.md,
+  },
   actionsRow: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -186,6 +229,9 @@ const styles = StyleSheet.create({
   primaryAction: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
+  },
+  disabledAction: {
+    opacity: 0.48,
   },
   actionText: {
     color: colors.textPrimary,
